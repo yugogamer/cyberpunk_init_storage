@@ -1,0 +1,26 @@
+[package]
+name = "cyberpunk_init_storage"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web = "4"
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0.32"
+actix-web-httpauth = "0.8.0"
+jwt = "0.16.0"
+sqlx = { version = "0.6.1", features = ["runtime-actix-native-tls", "postgres", "migrate", "chrono", "offline", "uuid" ] }
+chrono = { version = "0.4", features = ["serde"] }
+rust-argon2 = "1.0"
+uuid = {version = "1.2.1", features = ["serde", "v4"]}
+rand = "0.8.5"
+base64 = "0.13.0"
+sha2 = "0.10.2"
+hmac = "0.12.1"
+cookie = "0.16"
+async-trait = "0.1.59"
+
+[profile.dev.package.sqlx-macros]
+opt-level = 3
