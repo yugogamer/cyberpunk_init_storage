@@ -37,6 +37,8 @@ async fn main() -> std::io::Result<()> {
         let cors = Cors::default()
             .allowed_origin("http://localhost:3000")
             .allowed_origin("https://studio.apollographql.com")
+            .allowed_origin("http://localhost")
+            .allowed_origin("https://raina.ovh")
             .allowed_methods(vec!["GET", "POST"])
             .allowed_headers(vec![
                 http::header::AUTHORIZATION,
