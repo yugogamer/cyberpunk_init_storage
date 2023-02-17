@@ -38,6 +38,7 @@ async fn main() -> std::io::Result<()> {
             .allowed_origin("http://localhost:3000")
             .allowed_origin("https://studio.apollographql.com")
             .allowed_origin("http://localhost:5173")
+            .allowed_origin("http://127.0.0.1:5173")
             .allowed_origin("https://raina.ovh")
             .supports_credentials()
             .allowed_methods(vec!["GET", "POST"])

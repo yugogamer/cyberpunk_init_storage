@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize, juniper::GraphQLInputObject)]
 pub struct InputCharacter {
     pub name: String,
-    pub user_id: i32,
     pub groupe_id: i32,
     pub base_ref: i32,
     pub modifier: i32,
@@ -42,7 +41,11 @@ pub trait CharacterStore {
     async fn get_active_character_in_group(&self, id: i32) -> Result<Vec<Character>, AppErrors>;
     async fn get_character_by_group(&self, id: i32) -> Result<Vec<Character>, AppErrors>;
     async fn get_character_by_user(&self, id: i32) -> Result<Vec<Character>, AppErrors>;
-    async fn create_character(&self, character: InputCharacter) -> Result<Character, AppErrors>;
+    async fn create_character(
+        &self,
+        character: InputCharacter,
+        user_id: i32,
+    ) -> Result<Character, AppErrors>;
     async fn update_character(
         &self,
         character: UpdateCharacter,

@@ -57,7 +57,11 @@ impl CharacterStore for Database {
 
         Ok(characters)
     }
-    async fn create_character(&self, character: InputCharacter) -> Result<Character, AppErrors> {
+    async fn create_character(
+        &self,
+        character: InputCharacter,
+        user_id: i32,
+    ) -> Result<Character, AppErrors> {
         let character = sqlx::query_as!(
             Character,
             r#"
@@ -66,7 +70,7 @@ impl CharacterStore for Database {
             RETURNING *
             "#,
             character.name,
-            character.user_id,
+            user_id,
             character.groupe_id,
             character.base_ref,
             character.modifier,

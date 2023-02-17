@@ -44,7 +44,7 @@ impl Mutation {
         character: InputCharacter,
         ctx: &GraphqlContext,
     ) -> FieldResult<Character> {
-        let res = ctx.db.create_character(character).await?;
+        let res = ctx.db.create_character(character, ctx.user_id).await?;
         Ok(res)
     }
 
