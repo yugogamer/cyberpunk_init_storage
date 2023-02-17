@@ -1,12 +1,11 @@
 use crate::services::models::user::*;
 use crate::utils::config::Config;
-use uuid::Uuid;
 
 use super::Database;
 
 #[async_trait::async_trait]
 impl UserStore for Database {
-    async fn get_user(&self, id: Uuid) -> Result<User, crate::utils::errors::AppErrors> {
+    async fn get_user(&self, id: i32) -> Result<User, crate::utils::errors::AppErrors> {
         let res = sqlx::query_as!(
             User,
             r#"
@@ -70,7 +69,7 @@ impl UserStore for Database {
         Ok(res)
     }
 
-    async fn delete_user(&self, id: Uuid) -> Result<(), crate::utils::errors::AppErrors> {
+    async fn delete_user(&self, id: i32) -> Result<(), crate::utils::errors::AppErrors> {
         sqlx::query!(
             r#"
             DELETE FROM accounts

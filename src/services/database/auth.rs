@@ -6,7 +6,7 @@ use crate::{
 use super::Database;
 
 struct Input {
-    pub id: uuid::Uuid,
+    pub id: i32,
     pub username: String,
     pub email: String,
     pub password: String,
@@ -28,7 +28,7 @@ impl AuthStore for Database {
         .fetch_optional(&self.pool)
         .await?;
         if let Some(res) = res {
-            if crate::utils::auth::verify_password(&res.password, &login.password)? {
+            if crate::utils::auth::verify_password(&login.password, &res.password)? {
                 let token = crate::utils::auth::generate_jwt(
                     &LightUser {
                         id: res.id,

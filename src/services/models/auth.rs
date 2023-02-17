@@ -10,7 +10,7 @@ pub struct Login {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LightUser {
-    pub id: uuid::Uuid,
+    pub id: i32,
     pub username: String,
     pub email: String,
 }

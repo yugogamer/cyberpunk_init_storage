@@ -3,12 +3,16 @@ use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 use crate::utils::{config::Config, errors::AppErrors};
 
 mod auth;
+mod character;
+mod groupe;
 mod user;
 
 #[derive(Clone)]
 pub struct Database {
     pool: Pool<Postgres>,
 }
+
+impl juniper::Context for Database {}
 
 impl Database {
     pub async fn new(config: &Config) -> Result<Database, AppErrors> {

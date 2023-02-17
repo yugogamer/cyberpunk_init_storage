@@ -17,13 +17,11 @@ pub fn hash_password(password: &str, config: &argon2::Config) -> Result<String, 
     let password = password.as_bytes();
     let salt = generate_random_salt();
     let hash = argon2::hash_encoded(password, &salt, config)?;
-    Ok(base64::encode(&hash))
+    Ok(hash)
 }
 
 pub fn verify_password(password: &str, hash: &str) -> Result<bool, AppErrors> {
     let password = password.as_bytes();
-    let hash = base64::decode(hash)?;
-    let hash = std::str::from_utf8(&hash)?;
     let result = argon2::verify_encoded(hash, password)?;
     Ok(result)
 }
@@ -39,4 +37,16 @@ pub fn generate_jwt(
 pub fn verify_jwt(token: &str, key: &hmac::Hmac<sha2::Sha256>) -> Result<LightUser, AppErrors> {
     let accounts: LightUser = token.verify_with_key(key)?;
     Ok(accounts)
+}
+
+//test argon2
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_hash_password() {
+        let config = argon2::Config::default();
+        let hash = hash_password("yugogamer3", &config).unwrap();
+        assert!(verify_password("yugogamer3", &hash).unwrap());
+    }
 }
