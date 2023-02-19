@@ -5,7 +5,6 @@ use actix_web::{
 };
 
 use crate::services::models::character::CharacterStore;
-
 use crate::services::models::roll::roll_initiative;
 use crate::{services::database::Database, utils::errors::AppErrors};
 

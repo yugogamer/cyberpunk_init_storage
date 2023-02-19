@@ -1,8 +1,9 @@
+use std::{future::Future, pin::Pin};
 
-
-use super::{errors::AppErrors};
+use super::{config::Config, errors::AppErrors};
 use crate::services::models::auth::LightUser;
 
+use actix_web::{web::Data, FromRequest};
 use jwt::{SignWithKey, VerifyWithKey};
 
 fn generate_random_salt() -> [u8; 32] {
@@ -37,6 +38,36 @@ pub fn generate_jwt(
 pub fn verify_jwt(token: &str, key: &hmac::Hmac<sha2::Sha256>) -> Result<LightUser, AppErrors> {
     let accounts: LightUser = token.verify_with_key(key)?;
     Ok(accounts)
+}
+
+impl FromRequest for LightUser {
+    type Error = AppErrors;
+
+    type Future = Pin<Box<dyn Future<Output = Result<Self, Self::Error>>>>;
+
+    fn from_request(
+        req: &actix_web::HttpRequest,
+        _payload: &mut actix_web::dev::Payload,
+    ) -> Self::Future {
+        let req = req.clone();
+        let config = req.app_data::<Data<Config>>().unwrap().clone();
+        Box::pin(async move {
+            let token = req.cookie("session");
+            if token.is_none() {
+                let header_token = req.headers().get("session");
+                if header_token.is_none() {
+                    return Err(AppErrors::Unauthorized);
+                }
+                let token = header_token.unwrap().to_str().unwrap().to_string();
+                let accounts = verify_jwt(&token, &config.jwt_secret)?;
+                Ok(accounts)
+            } else {
+                let token = token.unwrap().value().to_string();
+                let accounts = verify_jwt(&token, &config.jwt_secret)?;
+                Ok(accounts)
+            }
+        })
+    }
 }
 
 //test argon2

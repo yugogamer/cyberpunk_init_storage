@@ -25,6 +25,20 @@ impl UserStore for Database {
         config: &Config,
     ) -> Result<User, crate::utils::errors::AppErrors> {
         let mut transaction = self.pool.begin().await?;
+        let existing_email = sqlx::query!(
+            r#"
+            SELECT email
+            FROM accounts
+            WHERE email = $1
+            "#,
+            user.email
+        )
+        .fetch_optional(&mut transaction)
+        .await?;
+        if existing_email.is_some() {
+            return Err(crate::utils::errors::AppErrors::EmailAlreadyUsed());
+        }
+
         let res = sqlx::query_as!(
             User,
             r#"

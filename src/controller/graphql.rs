@@ -1,14 +1,13 @@
+use actix_web::Responder;
 use actix_web::{
     get, post,
     web::{self},
     HttpResponse,
 };
-use actix_web::{HttpRequest, Responder};
 
-use crate::controller::extract_token;
 use crate::services::database::Database;
+use crate::services::models::auth::LightUser;
 use crate::services::models::query::Schema;
-use crate::utils::config::Config;
 
 pub struct GraphqlContext {
     pub db: Database,
@@ -19,22 +18,11 @@ impl juniper::Context for GraphqlContext {}
 
 #[post("/graphql")]
 pub async fn graphql(
-    request: HttpRequest,
+    user: LightUser,
     pool: web::Data<Database>,
     schema: web::Data<Schema>,
-    config: web::Data<Config>,
     data: web::Json<juniper::http::GraphQLRequest>,
 ) -> impl Responder {
-    let token = extract_token(&request);
-    if token.is_none() {
-        return HttpResponse::Unauthorized().finish();
-    }
-    let user = crate::utils::auth::verify_jwt(&token.unwrap(), &config.jwt_secret);
-    if user.is_err() {
-        return HttpResponse::Unauthorized().finish();
-    }
-    let user = user.unwrap();
-
     let ctx = GraphqlContext {
         db: pool.get_ref().clone(),
         user_id: user.id,
