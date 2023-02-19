@@ -64,8 +64,9 @@ async fn main() -> std::io::Result<()> {
                             .service(controller::account::register)
                             .service(controller::account::logout),
                     )
-                    .service(controller::account::graphql)
-                    .service(controller::account::graphql_read),
+                    .service(controller::graphql::graphql)
+                    .service(controller::graphql::graphql_read)
+                    .service(controller::bot::roll),
             )
             .service(index)
     })

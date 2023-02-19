@@ -28,6 +28,7 @@ pub fn roll_initiative(character: &Vec<Character>) -> Vec<CharacterRoll> {
         };
         characters_rolls.push(character_roll);
     }
+    characters_rolls.sort_by(|a, b| b.roll.total.cmp(&a.roll.total));
     characters_rolls
 }
 

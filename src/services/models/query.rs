@@ -1,7 +1,7 @@
 use juniper::{EmptySubscription, FieldResult, RootNode};
 
 use crate::{
-    controller::account::GraphqlContext,
+    controller::graphql::GraphqlContext,
     services::models::{
         character::{Character, CharacterStore, InputCharacter},
         groupes::{Groupe, GroupeStore},
@@ -28,6 +28,14 @@ impl Query {
     async fn get_character(character_id: i32, ctx: &GraphqlContext) -> FieldResult<Character> {
         let res = ctx.db.get_character(character_id).await?;
         Ok(res)
+    }
+
+    async fn make_roll(groupe_id: i32, ctx: &GraphqlContext) -> FieldResult<Vec<CharacterRoll>> {
+        let character = ctx.db.get_active_character_in_group(groupe_id).await?;
+
+        let rolls = roll_initiative(&character);
+
+        Ok(rolls)
     }
 }
 
@@ -65,15 +73,6 @@ impl Mutation {
     async fn delete_groupe(groupe_id: i32, ctx: &GraphqlContext) -> FieldResult<bool> {
         ctx.db.delete_groupe(groupe_id).await?;
         Ok(true)
-    }
-
-    async fn make_roll(groupe_id: i32, ctx: &GraphqlContext) -> FieldResult<Vec<CharacterRoll>> {
-        let character = ctx.db.get_active_character_in_group(groupe_id).await?;
-
-        let mut rolls = roll_initiative(&character);
-        rolls.sort_by(|a, b| b.roll.total.cmp(&a.roll.total));
-
-        Ok(rolls)
     }
 }
 

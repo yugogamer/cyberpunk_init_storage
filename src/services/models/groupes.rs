@@ -1,5 +1,5 @@
 use crate::{
-    controller::account::GraphqlContext,
+    controller::graphql::GraphqlContext,
     services::models::{character::CharacterStore, user::UserStore},
     utils::errors::AppErrors,
 };
