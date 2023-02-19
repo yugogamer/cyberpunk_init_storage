@@ -16,7 +16,7 @@ pub struct Query;
 #[juniper::graphql_object(Context = GraphqlContext)]
 impl Query {
     async fn get_groupe(groupe_id: i32, ctx: &GraphqlContext) -> FieldResult<Groupe> {
-        let res = ctx.db.get_groupe(groupe_id).await?;
+        let res = ctx.db.get_groupe_secured(groupe_id, ctx.user_id).await?;
         Ok(res)
     }
 

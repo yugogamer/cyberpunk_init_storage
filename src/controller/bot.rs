@@ -11,10 +11,17 @@ use crate::{services::database::Database, utils::errors::AppErrors};
 #[get("/roll/{groupe_id}")]
 pub async fn roll(
     pool: web::Data<Database>,
+    user: LightUser,
     path: web::Path<i32>,
 ) -> Result<HttpResponse, AppErrors> {
     let groupe_id = path.into_inner();
     let characters = pool.get_active_character_in_group(groupe_id).await?;
+    if characters.is_empty() {
+        return Err(AppErrors::NotFound);
+    }
+    if characters[0].userId != user.id {
+        return Err(AppErrors::NotFound);
+    }
 
     let rolls = roll_initiative(&characters);
     let response = HttpResponse::Ok().json(rolls);

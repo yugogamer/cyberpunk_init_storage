@@ -21,6 +21,25 @@ impl GroupeStore for Database {
         return Ok(groupe);
     }
 
+    async fn get_groupe_secured(
+        &self,
+        id: i32,
+        owner_id: i32,
+    ) -> Result<crate::services::models::groupes::Groupe, crate::utils::errors::AppErrors> {
+        let groupe = sqlx::query_as!(
+            crate::services::models::groupes::Groupe,
+            r#"
+            SELECT * FROM groupes WHERE id = $1 AND owner_id = $2
+            "#,
+            id,
+            owner_id
+        )
+        .fetch_one(&self.pool)
+        .await?;
+
+        return Ok(groupe);
+    }
+
     async fn get_groupe_by_owner(
         &self,
         id: i32,

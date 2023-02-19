@@ -53,6 +53,7 @@ impl Groupe {
 #[async_trait]
 pub trait GroupeStore {
     async fn get_groupe(&self, id: i32) -> Result<Groupe, AppErrors>;
+    async fn get_groupe_secured(&self, id: i32, owner_id: i32) -> Result<Groupe, AppErrors>;
     async fn get_groupe_by_owner(&self, id: i32) -> Result<Vec<Groupe>, AppErrors>;
     async fn create_groupe(&self, groupe: InputGroupe, owner_id: i32) -> Result<Groupe, AppErrors>;
     async fn update_groupe(&self, groupe: Groupe) -> Result<Groupe, AppErrors>;
