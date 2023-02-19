@@ -2,6 +2,7 @@ use actix_web::{error::HttpError, HttpResponse, ResponseError};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+#[allow(dead_code)]
 #[derive(Error, Debug)]
 pub enum AppErrors {
     #[error("email or username already in use")]
