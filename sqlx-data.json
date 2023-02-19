@@ -444,6 +444,26 @@
     },
     "query": "\n            DELETE FROM groupes WHERE id = $1\n            "
   },
+  "9b2248fe9f918299e71396117170e572fcea996b1e200910e841b451578cacc8": {
+    "describe": {
+      "columns": [
+        {
+          "name": "email",
+          "ordinal": 0,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "\n            SELECT email\n            FROM accounts\n            WHERE email = $1\n            "
+  },
   "bbe655c57d2d4869caca627d87f20ddaa62a7f80933aa4a2addf7d62e8ddce2d": {
     "describe": {
       "columns": [
