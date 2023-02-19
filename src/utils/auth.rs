@@ -1,8 +1,8 @@
-use std::future::{self, Ready};
 
-use super::{config::Config, errors::AppErrors};
+
+use super::{errors::AppErrors};
 use crate::services::models::auth::LightUser;
-use actix_web::FromRequest;
+
 use jwt::{SignWithKey, VerifyWithKey};
 
 fn generate_random_salt() -> [u8; 32] {

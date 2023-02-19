@@ -1,24 +1,13 @@
-use actix_web::cookie::Cookie;
 use actix_web::{
     get,
-    http::StatusCode,
-    post,
     web::{self},
     HttpResponse,
 };
-use actix_web::{route, HttpRequest, Responder};
 
 use crate::services::models::character::CharacterStore;
-use crate::services::models::query::Schema;
-use crate::services::models::roll::{roll_initiative, CharacterRoll};
-use crate::{
-    services::database::Database,
-    services::models::{
-        auth::{AuthStore, Login},
-        user::{InputUser, UserStore},
-    },
-    utils::{config::Config, errors::AppErrors},
-};
+
+use crate::services::models::roll::roll_initiative;
+use crate::{services::database::Database, utils::errors::AppErrors};
 
 #[get("/roll/{groupe_id}")]
 pub async fn roll(

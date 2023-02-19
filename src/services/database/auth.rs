@@ -46,7 +46,7 @@ impl AuthStore for Database {
         }
     }
 
-    async fn logout(&self, token: String) -> Result<(), AppErrors> {
+    async fn logout(&self, _token: String) -> Result<(), AppErrors> {
         todo!()
     }
 }

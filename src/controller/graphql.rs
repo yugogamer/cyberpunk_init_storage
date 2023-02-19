@@ -1,12 +1,9 @@
-use actix_web::cookie::Cookie;
 use actix_web::{
-    get,
-    http::StatusCode,
-    post,
+    get, post,
     web::{self},
     HttpResponse,
 };
-use actix_web::{route, HttpRequest, Responder};
+use actix_web::{HttpRequest, Responder};
 
 use crate::controller::extract_token;
 use crate::services::database::Database;

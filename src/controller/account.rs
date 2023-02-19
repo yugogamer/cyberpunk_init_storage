@@ -6,11 +6,7 @@ use actix_web::{
     web::{self},
     HttpResponse,
 };
-use actix_web::{route, HttpRequest, Responder};
 
-use crate::services::models::character::CharacterStore;
-use crate::services::models::query::Schema;
-use crate::services::models::roll::{roll_initiative, CharacterRoll};
 use crate::{
     services::database::Database,
     services::models::{
