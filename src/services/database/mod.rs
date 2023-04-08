@@ -14,7 +14,7 @@ mod user;
 
 #[derive(Clone)]
 pub struct Database {
-    pool: Pool<Postgres>,
+    _pool: Pool<Postgres>,
     auth_service: Auth,
     character_service: CharacterService,
     group_service: GroupesService,
@@ -33,7 +33,7 @@ impl DatabaseTrait<Self> for Database {
             character_service: CharacterService::new(pool.clone()),
             group_service: GroupesService::new(pool.clone()),
             user_service: UserService::new(pool.clone()),
-            pool,
+            _pool: pool,
         })
     }
 
