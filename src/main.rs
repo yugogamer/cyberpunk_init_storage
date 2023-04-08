@@ -18,7 +18,7 @@ async fn index() -> HttpResponse {
 async fn main() -> std::io::Result<()> {
     let config = utils::config::Config::new();
     if let Err(e) = config {
-        println!("{}", e);
+        println!("error while loading config: {}", e);
         std::process::exit(1);
     }
     let config = config.unwrap();
@@ -26,7 +26,7 @@ async fn main() -> std::io::Result<()> {
     let pool = match pool {
         Ok(pool) => pool,
         Err(e) => {
-            println!("{:?}", e);
+            println!("Error while connecting to database : {:?}", e);
             std::process::exit(1);
         }
     };
@@ -40,6 +40,8 @@ async fn main() -> std::io::Result<()> {
             .allowed_origin("http://localhost:5173")
             .allowed_origin("http://127.0.0.1:5173")
             .allowed_origin("https://raina.ovh")
+            .allowed_origin("https://cyberpunk.raina.ovh")
+            .allowed_origin("https://cyberpunk-website.s3-website.fr-par.scw.cloud")
             .supports_credentials()
             .allowed_methods(vec!["GET", "POST"])
             .allowed_headers(vec![
