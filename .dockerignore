@@ -1,1 +1,6 @@
 /target
+.docker_secret
+.github
+.gitignore
+.git
+.vscode
