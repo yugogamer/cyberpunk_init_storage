@@ -1,19 +1,9 @@
 [package]
-name = "cyberpunk_init_storage"
+name = "models"
 version = "0.1.0"
 edition = "2021"
-authors = ["yugogamer <yugogamer@gmail.com>"]
 
-[workspace]
-members = [
-    "models",
-    "database",
-    "shared",
-]
-
-[[bin]]
-name = "cyberpunk_init_storage"
-path = "src/main.rs"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 actix-web = "4"
@@ -35,6 +25,3 @@ async-trait = "0.1.59"
 juniper = {version="0.15.11", features=["uuid", "chrono", "graphql-parser", "serde_json"]}
 actix-cors = "0.6.4"
 rust-s3 = "0.32.3"
-
-[profile.dev.package.sqlx-macros]
-opt-level = 3
