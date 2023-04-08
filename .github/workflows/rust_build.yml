@@ -23,3 +23,17 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
+
+  deploy:
+
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Prepare docker package
+      run: docker login rg.fr-par.scw.cloud/cyberpunk-container -u nologin -p ${{ secrets.SCALEWAY_KEY }}
+    - name: Build the Docker image
+      run: docker build . --tag rg.fr-par.scw.cloud/cyberpunk-container/cyberpunk:latest
+    - name: Push the Docker image
+      run: docker push rg.fr-par.scw.cloud/cyberpunk-container/cyberpunk:latest
