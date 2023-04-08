@@ -1,10 +1,21 @@
 use crate::services::models::user::*;
 use crate::utils::config::Config;
 
-use super::Database;
+use sqlx::{Pool, Postgres};
+
+#[derive(Clone)]
+pub struct UserService {
+    pub pool: Pool<Postgres>,
+}
+
+impl UserService {
+    pub fn new(pool: Pool<Postgres>) -> Self {
+        Self { pool: pool.clone() }
+    }
+}
 
 #[async_trait::async_trait]
-impl UserStore for Database {
+impl UserStore for UserService {
     async fn get_user(&self, id: i32) -> Result<User, crate::utils::errors::AppErrors> {
         let res = sqlx::query_as!(
             User,

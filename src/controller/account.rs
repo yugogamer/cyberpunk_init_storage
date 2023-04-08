@@ -7,6 +7,7 @@ use actix_web::{
     HttpResponse,
 };
 
+use crate::services::models::database::DatabaseTrait;
 use crate::{
     services::database::Database,
     services::models::{
@@ -24,7 +25,7 @@ async fn login(
 ) -> Result<HttpResponse, AppErrors> {
     let login = login.into_inner();
 
-    let token = db.login(login, &config).await?;
+    let token = db.auth_service().login(login, &config).await?;
 
     let mut cookie = Cookie::new("session", token);
     cookie.set_path("/");
@@ -51,6 +52,6 @@ async fn register(
     create: web::Json<InputUser>,
 ) -> Result<HttpResponse, AppErrors> {
     let input = create.into_inner();
-    db.create_user(input, &config).await?;
+    db.user_store().create_user(input, &config).await?;
     Ok(HttpResponse::new(StatusCode::OK))
 }

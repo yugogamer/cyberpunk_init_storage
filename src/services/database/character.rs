@@ -1,10 +1,20 @@
 use crate::services::models::character::*;
 use crate::utils::errors::AppErrors;
+use sqlx::{Pool, Postgres};
 
-use super::Database;
+#[derive(Clone)]
+pub struct CharacterService {
+    pub pool: Pool<Postgres>,
+}
+
+impl CharacterService {
+    pub fn new(pool: Pool<Postgres>) -> Self {
+        Self { pool: pool.clone() }
+    }
+}
 
 #[async_trait::async_trait]
-impl CharacterStore for Database {
+impl CharacterStore for CharacterService {
     async fn get_character(&self, id: i32) -> Result<Character, AppErrors> {
         let character = sqlx::query_as!(
             Character,

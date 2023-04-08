@@ -2,6 +2,7 @@ use actix_cors::Cors;
 use actix_web::web::{self, Data};
 use actix_web::{get, http, middleware, App, HttpResponse, HttpServer};
 
+use crate::services::models::database::DatabaseTrait;
 use crate::services::models::query::create_schema;
 
 mod controller;

@@ -1,9 +1,19 @@
 use crate::services::models::groupes::GroupeStore;
+use sqlx::{Pool, Postgres};
 
-use super::Database;
+#[derive(Clone)]
+pub struct GroupesService {
+    pub pool: Pool<Postgres>,
+}
+
+impl GroupesService {
+    pub fn new(pool: Pool<Postgres>) -> Self {
+        Self { pool: pool.clone() }
+    }
+}
 
 #[async_trait::async_trait]
-impl GroupeStore for Database {
+impl GroupeStore for GroupesService {
     async fn get_groupe(
         &self,
         id: i32,
