@@ -1,10 +1,16 @@
-FROM rust:alpine3.17 AS builder
-RUN apk add --no-cache musl-dev pkgconfig openssl-dev
+FROM rust:buster AS builder
 WORKDIR /usr/src/app
 COPY . .
-RUN SQLX_OFFLINE=true cargo build --release
-
-FROM alpine:3.17
-COPY --from=builder /usr/src/app/target/release/cyberpunk_init_storage /usr/local/bin/cyberpunk_init_storage
 EXPOSE 8080
-ENTRYPOINT ["cyberpunk_init_storage"]
+RUN SQLX_OFFLINE=true cargo build --release
+#ENTRYPOINT [ "cargo", "run", "--release" ]
+
+FROM debian:stable-slim
+COPY --from=builder /usr/src/app/target/release/cyberpunk_init_storage /app/cyberpunk_init_storage
+COPY ./migrations /app/migrations
+EXPOSE 8080
+WORKDIR /app
+RUN chmod +x cyberpunk_init_storage
+RUN ls -la
+RUN ls -la migrations
+ENTRYPOINT ["./cyberpunk_init_storage"]
