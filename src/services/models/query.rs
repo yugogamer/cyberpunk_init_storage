@@ -3,9 +3,9 @@ use juniper::{EmptySubscription, FieldResult, RootNode};
 use crate::{
     controller::graphql::GraphqlContext,
     services::models::{
-        character::{Character, CharacterStore, InputCharacter},
+        character::{Character, InputCharacter},
         database::DatabaseTrait,
-        groupes::{Groupe, GroupeStore},
+        groupes::Groupe,
         roll::roll_initiative,
     },
 };

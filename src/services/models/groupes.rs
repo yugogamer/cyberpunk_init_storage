@@ -1,9 +1,5 @@
 use crate::services::models::database::DatabaseTrait;
-use crate::{
-    controller::graphql::GraphqlContext,
-    services::models::{character::CharacterStore, user::UserStore},
-    utils::errors::AppErrors,
-};
+use crate::{ controller::graphql::GraphqlContext, utils::errors::AppErrors};
 use async_trait::async_trait;
 use juniper::graphql_object;
 use serde::{Deserialize, Serialize};

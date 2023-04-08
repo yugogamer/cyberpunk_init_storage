@@ -19,7 +19,7 @@ pub struct Auth {
 
 impl Auth {
     pub fn new(pool: Pool<Postgres>) -> Self {
-        Self { pool: pool.clone() }
+        Self { pool }
     }
 }
 

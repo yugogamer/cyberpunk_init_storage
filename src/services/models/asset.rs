@@ -1,4 +1,4 @@
-use crate::utils::{config::Config, errors::AppErrors};
+use crate::utils::errors::AppErrors;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 

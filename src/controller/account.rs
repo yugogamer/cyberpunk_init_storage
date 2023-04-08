@@ -10,10 +10,7 @@ use actix_web::{
 use crate::services::models::database::DatabaseTrait;
 use crate::{
     services::database::Database,
-    services::models::{
-        auth::{AuthStore, Login},
-        user::{InputUser, UserStore},
-    },
+    services::models::{auth::Login, user::InputUser},
     utils::{config::Config, errors::AppErrors},
 };
 

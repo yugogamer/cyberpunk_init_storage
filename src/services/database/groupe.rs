@@ -8,7 +8,7 @@ pub struct GroupesService {
 
 impl GroupesService {
     pub fn new(pool: Pool<Postgres>) -> Self {
-        Self { pool: pool.clone() }
+        Self { pool }
     }
 }
 

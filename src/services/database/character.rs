@@ -9,7 +9,7 @@ pub struct CharacterService {
 
 impl CharacterService {
     pub fn new(pool: Pool<Postgres>) -> Self {
-        Self { pool: pool.clone() }
+        Self { pool }
     }
 }
 

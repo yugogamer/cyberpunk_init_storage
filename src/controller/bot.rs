@@ -4,9 +4,9 @@ use actix_web::{
     HttpResponse,
 };
 
+use crate::services::models::auth::LightUser;
+use crate::services::models::database::DatabaseTrait;
 use crate::services::models::roll::roll_initiative;
-use crate::services::models::{auth::LightUser, groupes::GroupeStore};
-use crate::services::models::{character::CharacterStore, database::DatabaseTrait};
 use crate::{services::database::Database, utils::errors::AppErrors};
 
 #[get("/roll/{groupe_id}")]
