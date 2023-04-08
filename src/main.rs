@@ -40,6 +40,8 @@ async fn main() -> std::io::Result<()> {
             .allowed_origin("http://localhost:5173")
             .allowed_origin("http://127.0.0.1:5173")
             .allowed_origin("https://raina.ovh")
+            .allowed_origin("https://cyberpunk.raina.ovh")
+            .allowed_origin("https://cyberpunk-website.s3-website.fr-par.scw.cloud")
             .supports_credentials()
             .allowed_methods(vec!["GET", "POST"])
             .allowed_headers(vec![
