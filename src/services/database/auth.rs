@@ -1,9 +1,9 @@
+use sqlx::{Pool, Postgres};
+
 use crate::{
     services::models::auth::*,
     utils::{config::Config, errors::AppErrors},
 };
-
-use super::Database;
 
 struct Input {
     pub id: i32,
@@ -12,8 +12,19 @@ struct Input {
     pub password: String,
 }
 
+#[derive(Clone)]
+pub struct Auth {
+    pub pool: Pool<Postgres>,
+}
+
+impl Auth {
+    pub fn new(pool: Pool<Postgres>) -> Self {
+        Self { pool }
+    }
+}
+
 #[async_trait::async_trait]
-impl AuthStore for Database {
+impl AuthStore for Auth {
     async fn login(&self, login: Login, config: &Config) -> Result<String, AppErrors> {
         let res = sqlx::query_as!(
             Input,

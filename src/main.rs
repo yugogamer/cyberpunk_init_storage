@@ -2,8 +2,8 @@ use actix_cors::Cors;
 use actix_web::web::{self, Data};
 use actix_web::{get, http, middleware, App, HttpResponse, HttpServer};
 
-
-use crate::services::models::query::{create_schema};
+use crate::services::models::database::DatabaseTrait;
+use crate::services::models::query::create_schema;
 
 mod controller;
 mod services;
@@ -14,7 +14,7 @@ async fn index() -> HttpResponse {
     HttpResponse::Ok().body("status : Ok")
 }
 
-#[actix_web::main]
+#[tokio::main]
 async fn main() -> std::io::Result<()> {
     let config = utils::config::Config::new();
     if let Err(e) = config {

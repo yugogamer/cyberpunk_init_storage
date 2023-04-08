@@ -1,5 +1,7 @@
+pub mod asset;
 pub mod auth;
 pub mod character;
+pub mod database;
 pub mod groupes;
 pub mod query;
 pub mod roll;

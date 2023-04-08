@@ -1,8 +1,5 @@
-use crate::{
-    controller::graphql::GraphqlContext,
-    services::models::{character::CharacterStore, user::UserStore},
-    utils::errors::AppErrors,
-};
+use crate::services::models::database::DatabaseTrait;
+use crate::{ controller::graphql::GraphqlContext, utils::errors::AppErrors};
 use async_trait::async_trait;
 use juniper::graphql_object;
 use serde::{Deserialize, Serialize};
@@ -33,12 +30,16 @@ impl Groupe {
     }
 
     async fn owner(&self, ctx: &GraphqlContext) -> juniper::FieldResult<User> {
-        let owner = ctx.db.get_user(self.owner_id).await?;
+        let owner = ctx.db.user_store().get_user(self.owner_id).await?;
         Ok(owner)
     }
 
     async fn characters(&self, ctx: &GraphqlContext) -> juniper::FieldResult<Vec<Character>> {
-        let characters = ctx.db.get_character_by_group(self.id).await?;
+        let characters = ctx
+            .db
+            .character_service()
+            .get_character_by_group(self.id)
+            .await?;
         Ok(characters)
     }
 
@@ -51,7 +52,7 @@ impl Groupe {
 }
 
 #[async_trait]
-pub trait GroupeStore {
+pub trait GroupeStore: Sync + Send {
     async fn get_groupe(&self, id: i32) -> Result<Groupe, AppErrors>;
     async fn get_groupe_secured(&self, id: i32, owner_id: i32) -> Result<Groupe, AppErrors>;
     async fn get_groupe_by_owner(&self, id: i32) -> Result<Vec<Groupe>, AppErrors>;

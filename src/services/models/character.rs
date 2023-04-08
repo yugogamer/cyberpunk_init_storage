@@ -36,7 +36,7 @@ pub struct Character {
 }
 
 #[async_trait]
-pub trait CharacterStore {
+pub trait CharacterStore: Sync + Send {
     async fn get_character(&self, id: i32) -> Result<Character, AppErrors>;
     async fn get_active_character_in_group(&self, id: i32) -> Result<Vec<Character>, AppErrors>;
     async fn get_character_by_group(&self, id: i32) -> Result<Vec<Character>, AppErrors>;

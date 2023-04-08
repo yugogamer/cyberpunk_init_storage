@@ -16,7 +16,7 @@ pub struct LightUser {
 }
 
 #[async_trait]
-pub trait AuthStore {
+pub trait AuthStore: Sync {
     async fn login(&self, login: Login, config: &Config) -> Result<String, AppErrors>;
     async fn logout(&self, token: String) -> Result<(), AppErrors>;
 }

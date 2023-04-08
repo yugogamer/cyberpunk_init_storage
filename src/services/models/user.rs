@@ -20,7 +20,7 @@ pub struct User {
 }
 
 #[async_trait]
-pub trait UserStore {
+pub trait UserStore: Sync + Send {
     async fn get_user(&self, id: i32) -> Result<User, AppErrors>;
     async fn create_user(&self, user: InputUser, config: &Config) -> Result<User, AppErrors>;
     async fn update_user(&self, user: User) -> Result<User, AppErrors>;
