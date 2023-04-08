@@ -33,6 +33,7 @@ async-trait = "0.1.59"
 juniper = {version="0.15.11", features=["uuid", "chrono", "graphql-parser", "serde_json"]}
 actix-cors = "0.6.4"
 rust-s3 = "0.33.0"
+log = "0.4.17"
 
 [profile.dev.package.sqlx-macros]
 opt-level = 3

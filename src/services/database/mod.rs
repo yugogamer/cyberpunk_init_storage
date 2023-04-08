@@ -1,5 +1,8 @@
 use async_trait::async_trait;
-use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
+use sqlx::{
+    postgres::{PgConnectOptions, PgPoolOptions},
+    ConnectOptions, Pool, Postgres,
+};
 
 use crate::utils::{config::Config, errors::AppErrors};
 
@@ -26,8 +29,19 @@ impl juniper::Context for Database {}
 #[async_trait]
 impl DatabaseTrait<Self> for Database {
     async fn new(config: &Config) -> Result<Database, AppErrors> {
-        let pool = PgPoolOptions::new().connect(&config.db_url).await?;
+        println!("setting connection to database option");
+        let connection = PgConnectOptions::new()
+            .host(&config.db_host)
+            .port(config.db_port)
+            .username(&config.db_user)
+            .password(&config.db_password)
+            .database(&config.db_name);
+
+        println!("Connecting starting pool");
+        let pool = PgPoolOptions::new().connect_with(connection).await?;
+        println!("Migrating database");
         migrate(&pool).await?;
+        println!("building database service");
         Ok(Database {
             auth_service: Auth::new(pool.clone()),
             character_service: CharacterService::new(pool.clone()),

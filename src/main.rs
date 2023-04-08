@@ -16,20 +16,24 @@ async fn index() -> HttpResponse {
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
+    println!("Starting server...");
     let config = utils::config::Config::new();
     if let Err(e) = config {
-        println!("{}", e);
+        println!("error while loading config: {}", e);
         std::process::exit(1);
     }
     let config = config.unwrap();
+    println!("db_host: {:?}", config);
+    println!("config loaded");
     let pool = services::database::Database::new(&config).await;
     let pool = match pool {
         Ok(pool) => pool,
         Err(e) => {
-            println!("{:?}", e);
+            println!("Error while connecting to database : {:?}", e);
             std::process::exit(1);
         }
     };
+    println!("database connected");
 
     let server = HttpServer::new(move || {
         let config = utils::config::Config::new().unwrap();
@@ -72,6 +76,8 @@ async fn main() -> std::io::Result<()> {
     })
     .bind((config.host.clone(), config.port))?
     .run();
+
+    println!("service builded");
 
     println!("Listening on http://{}:{}", config.host, config.port);
     server.await
