@@ -34,6 +34,7 @@ juniper = {version="0.15.11", features=["uuid", "chrono", "graphql-parser", "ser
 actix-cors = "0.6.4"
 rust-s3 = "0.33.0"
 log = "0.4.17"
+sea-orm = "0.11.2"
 
 [profile.dev.package.sqlx-macros]
 opt-level = 3

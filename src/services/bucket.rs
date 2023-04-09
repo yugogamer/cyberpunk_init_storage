@@ -2,6 +2,7 @@ use rand::{distributions::Alphanumeric, Rng};
 use s3::{creds::Credentials, Bucket, Region};
 use uuid::Uuid;
 
+#[derive(Clone)]
 pub struct BucketHandler {
     storage: Bucket,
 }
@@ -17,6 +18,32 @@ impl BucketHandler {
         let credential = Credentials::new(Some(acces), Some(secret), None, None, None).unwrap();
         let bucket = Bucket::new("raina-test-dev", region, credential).unwrap();
         BucketHandler { storage: bucket }
+    }
+
+    pub async fn upload(&self, filename: &str, data: &[u8]) -> String {
+        let filename = self.generate_filename(filename);
+        self.storage
+            .put_object(format!("images/characters/{filename}"), data)
+            .await
+            .unwrap();
+        filename
+    }
+
+    pub async fn download(&self, filename: &str) -> Vec<u8> {
+        let data = self
+            .storage
+            .get_object(format!("images/characters/{filename}"))
+            .await
+            .unwrap();
+        data.to_vec()
+    }
+
+    pub async fn remove(&self, filename: &str) -> bool {
+        self.storage
+            .delete_object(format!("images/characters/{filename}"))
+            .await
+            .unwrap();
+        true
     }
 
     pub async fn signe_upload(&self, filename: &str) -> String {

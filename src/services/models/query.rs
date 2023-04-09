@@ -34,6 +34,15 @@ impl Query {
         Ok(res)
     }
 
+    async fn my_groupes(ctx: &GraphqlContext) -> FieldResult<Vec<Groupe>> {
+        let res = ctx
+            .db
+            .group_service()
+            .get_groupe_by_owner(ctx.user_id)
+            .await?;
+        Ok(res)
+    }
+
     async fn get_character(character_id: i32, ctx: &GraphqlContext) -> FieldResult<Character> {
         let res = ctx
             .db

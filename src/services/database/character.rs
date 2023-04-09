@@ -32,7 +32,9 @@ impl CharacterStore for CharacterService {
         let characters = sqlx::query_as!(
             Character,
             r#"
-            SELECT * FROM characters WHERE groupe_id = $1 AND active = true
+            SELECT * FROM characters 
+            INNER JOIN groupes ON groupes.id = characters.groupe_id
+             WHERE groupe_id = $1 AND active = true
             "#,
             id
         )

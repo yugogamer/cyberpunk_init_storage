@@ -2,6 +2,7 @@ use actix_cors::Cors;
 use actix_web::web::{self, Data};
 use actix_web::{get, http, middleware, App, HttpResponse, HttpServer};
 
+use crate::services::bucket::BucketHandler;
 use crate::services::models::database::DatabaseTrait;
 use crate::services::models::query::create_schema;
 
@@ -30,6 +31,7 @@ async fn main() -> std::io::Result<()> {
             std::process::exit(1);
         }
     };
+    let storage = BucketHandler::new().await;
 
     let server = HttpServer::new(move || {
         let config = utils::config::Config::new().unwrap();

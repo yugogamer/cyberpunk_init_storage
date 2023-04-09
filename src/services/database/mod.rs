@@ -13,6 +13,7 @@ use super::models::database::DatabaseTrait;
 mod auth;
 mod character;
 mod groupe;
+mod orm;
 mod user;
 
 #[derive(Clone)]

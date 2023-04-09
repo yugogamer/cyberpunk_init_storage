@@ -6,20 +6,16 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize, juniper::GraphQLInputObject)]
 pub struct InputCharacter {
     pub name: String,
-    pub groupe_id: i32,
     pub base_ref: i32,
     pub modifier: i32,
-    pub active: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, juniper::GraphQLInputObject)]
 pub struct UpdateCharacter {
     pub name: Option<String>,
     pub user_id: Option<i32>,
-    pub groupe_id: Option<i32>,
     pub base_ref: Option<i32>,
     pub modifier: Option<i32>,
-    pub active: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, GraphQLObject)]
@@ -27,10 +23,9 @@ pub struct Character {
     pub id: i32,
     pub name: String,
     pub user_id: i32,
-    pub groupe_id: i32,
     pub base_ref: i32,
     pub modifier: i32,
-    pub active: bool,
+    pub asset_id: Option<i32>,
     pub created_at: chrono::NaiveDateTime,
     pub updated_at: chrono::NaiveDateTime,
 }
