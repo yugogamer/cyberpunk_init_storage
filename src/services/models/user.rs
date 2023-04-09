@@ -1,6 +1,7 @@
-use crate::utils::config::Config;
 use crate::utils::errors::AppErrors;
+use crate::{controller::graphql::GraphqlContext, utils::config::Config};
 use async_trait::async_trait;
+use juniper::graphql_object;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -17,6 +18,18 @@ pub struct User {
     pub username: String,
     pub created_at: chrono::NaiveDateTime,
     pub updated_at: chrono::NaiveDateTime,
+}
+
+impl From<entities::accounts::Model> for User {
+    fn from(input: entities::accounts::Model) -> Self {
+        Self {
+            id: input.id,
+            email: input.email,
+            username: input.username,
+            created_at: input.created_at,
+            updated_at: input.updated_at,
+        }
+    }
 }
 
 #[async_trait]

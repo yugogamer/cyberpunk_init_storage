@@ -6,6 +6,7 @@ use actix_web::{
     web::{self},
     HttpResponse,
 };
+use sea_orm::{ActiveModelTrait, Set};
 
 use crate::services::models::database::DatabaseTrait;
 use crate::{
@@ -49,6 +50,22 @@ async fn register(
     create: web::Json<InputUser>,
 ) -> Result<HttpResponse, AppErrors> {
     let input = create.into_inner();
-    db.user_store().create_user(input, &config).await?;
+    let newUser = entities::accounts::ActiveModel {
+        username: Set(input.username),
+        email: Set(input.email),
+        ..Default::default()
+    }
+    .insert(&db.database)
+    .await?;
+
+    let password = crate::utils::auth::hash_password(&input.password, &config.argon2_config)?;
+
+    let new_auth = entities::auth::ActiveModel {
+        user_id: Set(newUser.id),
+        password: Set(password),
+        ..Default::default()
+    }
+    .insert(&db.database)
+    .await?;
     Ok(HttpResponse::new(StatusCode::OK))
 }

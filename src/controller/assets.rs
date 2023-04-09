@@ -23,5 +23,5 @@ pub async fn create(
     payload: web::Bytes,
     user: LightUser,
 ) -> HttpResponse {
-    let image = payload.to_vec();
+    HttpResponse::new(StatusCode::OK)
 }

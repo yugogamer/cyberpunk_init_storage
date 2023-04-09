@@ -30,6 +30,21 @@ pub struct Character {
     pub updated_at: chrono::NaiveDateTime,
 }
 
+impl From<entities::characters::Model> for Character {
+    fn from(input: entities::characters::Model) -> Self {
+        Self {
+            id: input.id,
+            name: input.name,
+            user_id: input.user_id,
+            base_ref: input.base_ref,
+            modifier: input.modifier,
+            asset_id: input.asset_id,
+            created_at: input.created_at,
+            updated_at: input.updated_at,
+        }
+    }
+}
+
 #[async_trait]
 pub trait CharacterStore: Sync + Send {
     async fn get_character(&self, id: i32) -> Result<Character, AppErrors>;
