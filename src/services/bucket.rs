@@ -1,3 +1,4 @@
+use crate::utils::config::Config;
 use rand::{distributions::Alphanumeric, Rng};
 use s3::{creds::Credentials, Bucket, Region};
 use uuid::Uuid;
@@ -8,15 +9,20 @@ pub struct BucketHandler {
 }
 
 impl BucketHandler {
-    pub async fn new() -> BucketHandler {
-        let acces = "SCWPAPF1X1VVK7109MP0";
-        let secret = "7605596e-2438-4e97-948d-a14e9d39eebf";
+    pub async fn new(config: &Config) -> BucketHandler {
         let region = Region::Custom {
-            region: "fr-par".into(),
-            endpoint: "https://s3.fr-par.scw.cloud".into(),
+            region: config.bucket_region.clone(),
+            endpoint: config.bucket_endpoint.clone(),
         };
-        let credential = Credentials::new(Some(acces), Some(secret), None, None, None).unwrap();
-        let bucket = Bucket::new("raina-test-dev", region, credential).unwrap();
+        let credential = Credentials::new(
+            Some(&config.bucket_access),
+            Some(&config.bucket_secret),
+            None,
+            None,
+            None,
+        )
+        .unwrap();
+        let bucket = Bucket::new(&config.bucket_name, region, credential).unwrap();
         BucketHandler { storage: bucket }
     }
 

@@ -31,7 +31,7 @@ async fn main() -> std::io::Result<()> {
             std::process::exit(1);
         }
     };
-    let storage = BucketHandler::new().await;
+    let storage = BucketHandler::new(&config).await;
 
     let server = HttpServer::new(move || {
         let config = utils::config::Config::new().unwrap();
@@ -58,6 +58,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             .app_data(Data::new(pool.clone()))
             .app_data(Data::new(config))
+            .app_data(Data::new(storage.clone()))
             .app_data(Data::new(create_schema()))
             .wrap(middleware::Compress::default())
             .service(

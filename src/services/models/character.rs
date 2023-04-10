@@ -1,6 +1,7 @@
-use crate::utils::errors::AppErrors;
+use crate::{controller::graphql::GraphqlContext, utils::errors::AppErrors};
 use async_trait::async_trait;
-use juniper::GraphQLObject;
+use juniper::{graphql_object, GraphQLObject};
+use sea_orm::ModelTrait;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, juniper::GraphQLInputObject)]
@@ -18,8 +19,9 @@ pub struct UpdateCharacter {
     pub modifier: Option<i32>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, GraphQLObject)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Character {
+    model: entities::characters::Model,
     pub id: i32,
     pub name: String,
     pub user_id: i32,
@@ -33,6 +35,7 @@ pub struct Character {
 impl From<entities::characters::Model> for Character {
     fn from(input: entities::characters::Model) -> Self {
         Self {
+            model: input.clone(),
             id: input.id,
             name: input.name,
             user_id: input.user_id,
@@ -42,6 +45,46 @@ impl From<entities::characters::Model> for Character {
             created_at: input.created_at,
             updated_at: input.updated_at,
         }
+    }
+}
+
+#[graphql_object(Context = GraphqlContext)]
+impl Character {
+    fn id(&self) -> i32 {
+        self.id
+    }
+    fn name(&self) -> &str {
+        &self.name
+    }
+    fn user_id(&self) -> i32 {
+        self.user_id
+    }
+    fn base_ref(&self) -> i32 {
+        self.base_ref
+    }
+    fn modifier(&self) -> i32 {
+        self.modifier
+    }
+    async fn asset_url(&self, ctx: &GraphqlContext) -> Option<String> {
+        if let Some(asset_id) = self.asset_id {
+            let asset = self
+                .model
+                .find_related(entities::assets::Entity)
+                .one(&ctx.db.database)
+                .await
+                .unwrap()
+                .unwrap();
+            let url = ctx.storage.signe_download(&asset.bucket_name).await;
+            Some(url)
+        } else {
+            None
+        }
+    }
+    fn created_at(&self) -> chrono::NaiveDateTime {
+        self.created_at
+    }
+    fn updated_at(&self) -> chrono::NaiveDateTime {
+        self.updated_at
     }
 }
 

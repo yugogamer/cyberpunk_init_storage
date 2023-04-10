@@ -56,6 +56,17 @@ impl Query {
         Err("Groupe not found".into())
     }
 
+    async fn my_character(ctx: &GraphqlContext) -> FieldResult<Vec<Character>> {
+        let res = entities::accounts::Entity::find_by_id(ctx.user_id)
+            .one(&ctx.db.database)
+            .await?
+            .unwrap()
+            .find_related(entities::characters::Entity)
+            .all(&ctx.db.database)
+            .await?;
+        Ok(res.into_iter().map(|x| x.into()).collect())
+    }
+
     async fn make_roll(groupe_id: i32, ctx: &GraphqlContext) -> FieldResult<Vec<CharacterRoll>> {
         let groupe = entities::groupes::Entity::find_by_id(groupe_id)
             .one(&ctx.db.database)
@@ -93,6 +104,15 @@ impl Mutation {
         }
         .insert(&ctx.db.database)
         .await?;
+
+        entities::groupes_access::ActiveModel {
+            id_user: Set(ctx.user_id),
+            id_groupe: Set(groupe.id),
+            admin: Set(true),
+            ..Default::default()
+        }
+        .insert(&ctx.db.database)
+        .await?;
         Ok(groupe.into())
     }
 
@@ -110,6 +130,46 @@ impl Mutation {
         .insert(&ctx.db.database)
         .await?;
         Ok(character.into())
+    }
+
+    async fn assign_character_to_groupe(
+        character_id: i32,
+        groupe_id: i32,
+        ctx: &GraphqlContext,
+    ) -> FieldResult<bool> {
+        if !can_access_groupe(groupe_id, ctx.user_id, &ctx.db.database).await? {
+            return Err("You can't access this groupe".into());
+        }
+        if !can_edit_character(character_id, ctx.user_id, &ctx.db.database).await? {
+            return Err("You can't edit this character".into());
+        }
+
+        entities::active_in_groups::ActiveModel {
+            id_characters: Set(character_id),
+            id_groupe: Set(groupe_id),
+            active: Set(true),
+            ..Default::default()
+        }
+        .insert(&ctx.db.database)
+        .await?;
+        Ok(true)
+    }
+
+    async fn remove_character_from_groupe(
+        character_id: i32,
+        groupe_id: i32,
+        ctx: &GraphqlContext,
+    ) -> FieldResult<bool> {
+        if !can_edit_groupe(groupe_id, ctx.user_id, &ctx.db.database).await? {
+            return Err("You can't edit this groupe".into());
+        }
+
+        entities::active_in_groups::Entity::delete_many()
+            .filter(entities::active_in_groups::Column::IdCharacters.eq(character_id))
+            .filter(entities::active_in_groups::Column::IdGroupe.eq(groupe_id))
+            .exec(&ctx.db.database)
+            .await?;
+        Ok(true)
     }
 
     async fn update_character(
@@ -175,6 +235,22 @@ async fn can_access_groupe(
         .await?;
     if let Some(res) = res {
         return Ok(true);
+    }
+    Ok(false)
+}
+
+async fn can_edit_groupe(
+    groupe_id: i32,
+    user_id: i32,
+    db: &DatabaseConnection,
+) -> Result<bool, AppErrors> {
+    let res = entities::groupes::Entity::find_by_id(groupe_id)
+        .one(db)
+        .await?;
+    if let Some(res) = res {
+        if res.owner_id == user_id {
+            return Ok(true);
+        }
     }
     Ok(false)
 }
