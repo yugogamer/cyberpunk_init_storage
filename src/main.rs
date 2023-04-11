@@ -60,6 +60,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(Data::new(config))
             .app_data(Data::new(storage.clone()))
             .app_data(Data::new(create_schema()))
+            .app_data(web::PayloadConfig::new(100000000))
             .wrap(middleware::Compress::default())
             .service(
                 web::scope("/api")
@@ -69,6 +70,7 @@ async fn main() -> std::io::Result<()> {
                             .service(controller::account::register)
                             .service(controller::account::logout),
                     )
+                    .service(web::scope("/character/asset").service(controller::assets::create))
                     .service(controller::graphql::graphql)
                     .service(controller::graphql::graphql_read)
                     .service(controller::bot::roll),

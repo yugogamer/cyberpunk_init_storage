@@ -63,7 +63,7 @@ impl BucketHandler {
     pub async fn signe_download(&self, filename: &str) -> String {
         let expiry_secs = 3600;
         self.storage
-            .presign_get(format!("image/{filename}"), expiry_secs, None)
+            .presign_get(format!("images/characters/{filename}"), expiry_secs, None)
             .unwrap()
     }
 
