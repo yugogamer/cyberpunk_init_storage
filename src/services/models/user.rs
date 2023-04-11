@@ -1,7 +1,7 @@
 use crate::utils::errors::AppErrors;
-use crate::{controller::graphql::GraphqlContext, utils::config::Config};
+use crate::{utils::config::Config};
 use async_trait::async_trait;
-use juniper::graphql_object;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

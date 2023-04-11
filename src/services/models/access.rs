@@ -12,7 +12,7 @@ pub async fn can_access_groupe(
         .filter(entities::groupes_access::Column::IdUser.eq(user_id))
         .one(db)
         .await?;
-    if let Some(res) = res {
+    if let Some(_res) = res {
         return Ok(true);
     }
     Ok(false)

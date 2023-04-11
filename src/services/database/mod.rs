@@ -45,7 +45,7 @@ impl DatabaseTrait<Self> for Database {
         Ok(Database {
             database,
             auth_service: Auth::new(pool.clone()),
-            pool: pool,
+            pool,
         })
     }
 

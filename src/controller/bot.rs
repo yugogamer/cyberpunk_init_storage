@@ -12,7 +12,7 @@ use crate::{services::database::Database, utils::errors::AppErrors};
 #[get("/roll/{groupe_id}")]
 pub async fn roll(
     pool: web::Data<Database>,
-    user: LightUser,
+    _user: LightUser,
     path: web::Path<i32>,
 ) -> Result<HttpResponse, AppErrors> {
     let groupe_id = path.into_inner();

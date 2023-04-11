@@ -60,7 +60,7 @@ async fn register(
 
     let password = crate::utils::auth::hash_password(&input.password, &config.argon2_config)?;
 
-    let new_auth = entities::auth::ActiveModel {
+    let _new_auth = entities::auth::ActiveModel {
         user_id: Set(newUser.id),
         password: Set(password),
         ..Default::default()

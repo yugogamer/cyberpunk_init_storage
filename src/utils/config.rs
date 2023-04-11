@@ -1,5 +1,5 @@
 use hmac::{Hmac, Mac};
-use log::{info, warn};
+
 use sha2::Sha256;
 
 use super::errors::AppErrors;

@@ -56,9 +56,9 @@ impl CharacterMutation {
                 character.modifier = Set(modifier);
             }
             let character = character.update(&ctx.db.database).await?;
-            return Ok(character.into());
+            Ok(character.into())
         } else {
-            return Err("Character not found".into());
+            Err("Character not found".into())
         }
     }
 

@@ -1,25 +1,11 @@
-use juniper::{EmptySubscription, FieldResult, RootNode};
+use juniper::{EmptySubscription, RootNode};
 use juniper_compose::composite_object;
 
-use crate::{
-    controller::graphql::GraphqlContext,
-    services::models::{
-        character::{Character, InputCharacter},
-        database::DatabaseTrait,
-        groupes::Groupe,
-        roll::roll_initiative,
-    },
-    utils::errors::AppErrors,
-};
-use sea_orm::{
-    entity, ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, IntoActiveModel,
-    ModelTrait, QueryFilter, QuerySelect, Related, RelationTrait, Set,
-};
+use crate::controller::graphql::GraphqlContext;
 
 use super::{
-    character::{mutation::CharacterMutation, query::CharacterQuery, UpdateCharacter},
-    groupes::{mutation::GroupesMutation, query::QueryGroupes, InputGroupe},
-    roll::CharacterRoll,
+    character::{mutation::CharacterMutation, query::CharacterQuery},
+    groupes::{mutation::GroupesMutation, query::QueryGroupes},
 };
 
 pub type Schema = RootNode<'static, Query, Mutation, EmptySubscription<GraphqlContext>>;

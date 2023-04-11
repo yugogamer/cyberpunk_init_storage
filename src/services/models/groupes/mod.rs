@@ -2,7 +2,7 @@ use crate::services::models::database::DatabaseTrait;
 use crate::{controller::graphql::GraphqlContext, utils::errors::AppErrors};
 use async_trait::async_trait;
 use juniper::graphql_object;
-use sea_orm::{IntoActiveModel, ModelTrait};
+use sea_orm::{ModelTrait};
 use serde::{Deserialize, Serialize};
 
 use super::{character::Character, user::User};
