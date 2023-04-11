@@ -7,6 +7,9 @@ use serde::{Deserialize, Serialize};
 
 use super::{character::Character, user::User};
 
+pub mod mutation;
+pub mod query;
+
 #[derive(Debug, Clone, Serialize, Deserialize, juniper::GraphQLInputObject)]
 pub struct InputGroupe {
     pub name: String,

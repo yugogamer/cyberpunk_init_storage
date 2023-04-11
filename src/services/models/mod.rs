@@ -1,3 +1,4 @@
+pub mod access;
 pub mod asset;
 pub mod auth;
 pub mod character;

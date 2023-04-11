@@ -1,8 +1,11 @@
 use crate::{controller::graphql::GraphqlContext, utils::errors::AppErrors};
 use async_trait::async_trait;
-use juniper::{graphql_object, GraphQLObject};
+use juniper::graphql_object;
 use sea_orm::ModelTrait;
 use serde::{Deserialize, Serialize};
+
+pub mod mutation;
+pub mod query;
 
 #[derive(Debug, Clone, Serialize, Deserialize, juniper::GraphQLInputObject)]
 pub struct InputCharacter {
@@ -66,7 +69,7 @@ impl Character {
         self.modifier
     }
     async fn asset_url(&self, ctx: &GraphqlContext) -> Option<String> {
-        if let Some(asset_id) = self.asset_id {
+        if let Some(_asset_id) = self.asset_id {
             let asset = self
                 .model
                 .find_related(entities::assets::Entity)
