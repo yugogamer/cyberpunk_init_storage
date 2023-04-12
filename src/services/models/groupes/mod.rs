@@ -2,7 +2,7 @@ use crate::services::models::database::DatabaseTrait;
 use crate::{controller::graphql::GraphqlContext, utils::errors::AppErrors};
 use async_trait::async_trait;
 use juniper::graphql_object;
-use sea_orm::{ModelTrait};
+use sea_orm::{ModelTrait, QueryOrder};
 use serde::{Deserialize, Serialize};
 
 use super::{character::Character, user::User};
@@ -61,10 +61,15 @@ impl Groupe {
         let characters = self
             .model
             .find_related(entities::characters::Entity)
+            .order_by_asc(entities::characters::Column::Name)
             .all(&ctx.db.database)
             .await?
             .into_iter()
-            .map(|character| character.into())
+            .map(|character| {
+                let mut temp: Character = character.into();
+                temp.group_id = Some(self.id);
+                temp
+            })
             .collect();
         Ok(characters)
     }

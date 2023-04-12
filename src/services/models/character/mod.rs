@@ -1,7 +1,7 @@
 use crate::{controller::graphql::GraphqlContext, utils::errors::AppErrors};
 use async_trait::async_trait;
-use juniper::graphql_object;
-use sea_orm::ModelTrait;
+use juniper::{futures::future::ok, graphql_object, FieldResult};
+use sea_orm::{ColumnTrait, EntityTrait, ModelTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
 
 pub mod mutation;
@@ -25,6 +25,7 @@ pub struct UpdateCharacter {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Character {
     model: entities::characters::Model,
+    pub group_id: Option<i32>,
     pub id: i32,
     pub name: String,
     pub user_id: i32,
@@ -47,6 +48,7 @@ impl From<entities::characters::Model> for Character {
             asset_id: input.asset_id,
             created_at: input.created_at,
             updated_at: input.updated_at,
+            group_id: None,
         }
     }
 }
@@ -88,6 +90,20 @@ impl Character {
     }
     fn updated_at(&self) -> chrono::NaiveDateTime {
         self.updated_at
+    }
+
+    async fn active(&self, ctx: &GraphqlContext) -> FieldResult<Option<bool>> {
+        if let Some(group_id) = self.group_id {
+            let active = entities::active_in_groups::Entity::find()
+                .filter(entities::active_in_groups::Column::IdCharacters.eq(self.id))
+                .filter(entities::active_in_groups::Column::IdGroupe.eq(group_id))
+                .one(&ctx.db.database)
+                .await?;
+            if let Some(active) = active {
+                return Ok(Some(active.active));
+            }
+        }
+        Ok(None)
     }
 }
 

@@ -1,6 +1,6 @@
 use juniper::FieldResult;
 use juniper_compose::composable_object;
-use sea_orm::{EntityTrait, ModelTrait};
+use sea_orm::{EntityTrait, ModelTrait, QueryOrder};
 
 use crate::controller::graphql::GraphqlContext;
 
@@ -29,6 +29,7 @@ impl CharacterQuery {
             .await?
             .unwrap()
             .find_related(entities::characters::Entity)
+            .order_by_asc(entities::characters::Column::CreatedAt)
             .all(&ctx.db.database)
             .await?;
         Ok(res.into_iter().map(|x| x.into()).collect())

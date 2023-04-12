@@ -23,15 +23,11 @@ pub async fn roll(
     let character = groupe
         .unwrap()
         .find_related(entities::characters::Entity)
-        .join(
-            sea_orm::JoinType::InnerJoin,
-            entities::active_in_groups::Relation::Characters.def(),
-        )
         .filter(entities::active_in_groups::Column::Active.eq(true))
         .all(&pool.database)
         .await?
         .into_iter()
-        .map(|x| x.into())
+        .map(|c| c.into())
         .collect();
 
     let rolls = roll_initiative(&character);

@@ -1,6 +1,7 @@
+use hmac::digest::typenum::Gr;
 use juniper::FieldResult;
 use juniper_compose::composable_object;
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set};
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter, Set};
 
 use crate::{
     controller::graphql::GraphqlContext,
@@ -76,10 +77,74 @@ impl GroupesMutation {
         Ok(true)
     }
 
+    async fn change_status_in_groupe(
+        character_id: i32,
+        groupe_id: i32,
+        active: bool,
+        ctx: &GraphqlContext,
+    ) -> FieldResult<bool> {
+        if !can_edit_groupe(groupe_id, ctx.user_id, &ctx.db.database).await? {
+            return Err("You can't edit this groupe".into());
+        }
+        let status = entities::active_in_groups::Entity::find_by_id((character_id, groupe_id))
+            .one(&ctx.db.database)
+            .await?;
+        if let Some(status) = status {
+            let mut status = status.into_active_model();
+            status.set(entities::active_in_groups::Column::Active, active.into());
+            status.update(&ctx.db.database).await?;
+        }
+
+        Ok(true)
+    }
+
     async fn delete_groupe(groupe_id: i32, ctx: &GraphqlContext) -> FieldResult<bool> {
         entities::groupes::Entity::delete_by_id(groupe_id)
             .exec(&ctx.db.database)
             .await?;
+        Ok(true)
+    }
+
+    async fn invite_user(groupe_id: i32, user_id: i32, ctx: &GraphqlContext) -> FieldResult<bool> {
+        if !can_edit_groupe(groupe_id, ctx.user_id, &ctx.db.database).await? {
+            return Err("You can't edit this groupe".into());
+        }
+        entities::invitations::ActiveModel {
+            groupe_id: Set(Some(user_id)),
+            user_id: Set(Some(groupe_id)),
+            accepted: Set(false),
+            ..Default::default()
+        }
+        .insert(&ctx.db.database)
+        .await?;
+        Ok(true)
+    }
+
+    async fn accept_invitation(groupe_id: i32, ctx: &GraphqlContext) -> FieldResult<bool> {
+        let invitation = entities::invitations::Entity::find()
+            .filter(entities::invitations::Column::GroupeId.eq(groupe_id))
+            .filter(entities::invitations::Column::UserId.eq(ctx.user_id))
+            .one(&ctx.db.database)
+            .await?;
+        if let Some(invitation) = invitation {
+            let mut invitation = invitation.into_active_model();
+            invitation.set(entities::invitations::Column::Accepted, true.into());
+            invitation.update(&ctx.db.database).await?;
+        }
+        Ok(true)
+    }
+
+    async fn refuse_invitation(groupe_id: i32, ctx: &GraphqlContext) -> FieldResult<bool> {
+        let invitation = entities::invitations::Entity::find()
+            .filter(entities::invitations::Column::GroupeId.eq(groupe_id))
+            .filter(entities::invitations::Column::UserId.eq(ctx.user_id))
+            .one(&ctx.db.database)
+            .await?;
+        if let Some(invitation) = invitation {
+            let mut invitation = invitation.into_active_model();
+            invitation.set(entities::invitations::Column::Accepted, false.into());
+            invitation.update(&ctx.db.database).await?;
+        }
         Ok(true)
     }
 }
