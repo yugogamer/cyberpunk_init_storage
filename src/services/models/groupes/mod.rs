@@ -1,10 +1,14 @@
 use crate::services::models::database::DatabaseTrait;
-use crate::{ controller::graphql::GraphqlContext, utils::errors::AppErrors};
+use crate::{controller::graphql::GraphqlContext, utils::errors::AppErrors};
 use async_trait::async_trait;
 use juniper::graphql_object;
+use sea_orm::{ModelTrait, QueryOrder};
 use serde::{Deserialize, Serialize};
 
 use super::{character::Character, user::User};
+
+pub mod mutation;
+pub mod query;
 
 #[derive(Debug, Clone, Serialize, Deserialize, juniper::GraphQLInputObject)]
 pub struct InputGroupe {
@@ -13,11 +17,25 @@ pub struct InputGroupe {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Groupe {
+    model: entities::groupes::Model,
     pub id: i32,
     pub name: String,
     pub owner_id: i32,
     pub created_at: chrono::NaiveDateTime,
     pub updated_at: chrono::NaiveDateTime,
+}
+
+impl From<entities::groupes::Model> for Groupe {
+    fn from(input: entities::groupes::Model) -> Self {
+        Self {
+            model: input.clone(),
+            id: input.id,
+            name: input.name,
+            owner_id: input.owner_id,
+            created_at: input.created_at,
+            updated_at: input.updated_at,
+        }
+    }
 }
 
 #[graphql_object(Context = GraphqlContext)]
@@ -30,16 +48,29 @@ impl Groupe {
     }
 
     async fn owner(&self, ctx: &GraphqlContext) -> juniper::FieldResult<User> {
-        let owner = ctx.db.user_store().get_user(self.owner_id).await?;
-        Ok(owner)
+        let owner = self
+            .model
+            .find_related(entities::accounts::Entity)
+            .one(&ctx.db.database)
+            .await?
+            .unwrap();
+        Ok(owner.into())
     }
 
     async fn characters(&self, ctx: &GraphqlContext) -> juniper::FieldResult<Vec<Character>> {
-        let characters = ctx
-            .db
-            .character_service()
-            .get_character_by_group(self.id)
-            .await?;
+        let characters = self
+            .model
+            .find_related(entities::characters::Entity)
+            .order_by_asc(entities::characters::Column::Name)
+            .all(&ctx.db.database)
+            .await?
+            .into_iter()
+            .map(|character| {
+                let mut temp: Character = character.into();
+                temp.group_id = Some(self.id);
+                temp
+            })
+            .collect();
         Ok(characters)
     }
 

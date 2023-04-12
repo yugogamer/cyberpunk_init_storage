@@ -1,13 +1,25 @@
-use juniper::GraphQLObject;
+use juniper::{graphql_object, GraphQLObject};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
+use crate::controller::graphql::GraphqlContext;
+
 use super::character::Character;
 
-#[derive(Debug, Clone, Serialize, Deserialize, GraphQLObject)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CharacterRoll {
     pub character: Character,
     pub roll: Roll,
+}
+
+#[graphql_object(Context = GraphqlContext)]
+impl CharacterRoll {
+    fn character(&self) -> &Character {
+        &self.character
+    }
+    fn roll(&self) -> &Roll {
+        &self.roll
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, GraphQLObject)]

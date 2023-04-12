@@ -12,6 +12,8 @@ pub struct Asset {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NewAsset {
+    pub owner_id: i32,
+    pub character_id: i32,
     pub original_name: String,
 }
 

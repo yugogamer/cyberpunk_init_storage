@@ -1,22 +1,55 @@
+use crate::utils::config::Config;
 use rand::{distributions::Alphanumeric, Rng};
 use s3::{creds::Credentials, Bucket, Region};
 use uuid::Uuid;
 
+#[derive(Clone)]
 pub struct BucketHandler {
     storage: Bucket,
 }
 
 impl BucketHandler {
-    pub async fn new() -> BucketHandler {
-        let acces = "SCWPAPF1X1VVK7109MP0";
-        let secret = "7605596e-2438-4e97-948d-a14e9d39eebf";
+    pub async fn new(config: &Config) -> BucketHandler {
         let region = Region::Custom {
-            region: "fr-par".into(),
-            endpoint: "https://s3.fr-par.scw.cloud".into(),
+            region: config.bucket_region.clone(),
+            endpoint: config.bucket_endpoint.clone(),
         };
-        let credential = Credentials::new(Some(acces), Some(secret), None, None, None).unwrap();
-        let bucket = Bucket::new("raina-test-dev", region, credential).unwrap();
+        let credential = Credentials::new(
+            Some(&config.bucket_access),
+            Some(&config.bucket_secret),
+            None,
+            None,
+            None,
+        )
+        .unwrap();
+        let bucket = Bucket::new(&config.bucket_name, region, credential).unwrap();
         BucketHandler { storage: bucket }
+    }
+
+    pub async fn upload(&self, filename: &str, data: &[u8]) -> String {
+        let filename = self.generate_filename(filename);
+        self.storage
+            .put_object(format!("images/characters/{filename}"), data)
+            .await
+            .unwrap();
+        filename
+    }
+
+    pub async fn download(&self, filename: &str) -> Vec<u8> {
+        let data = self
+            .storage
+            .get_object(format!("images/characters/{filename}"))
+            .await
+            .unwrap();
+        data.to_vec()
+    }
+
+    pub async fn remove(&self, filename: &str) -> bool {
+        self.storage
+            .delete_object(format!("images/characters/{filename}"))
+            .await
+            .unwrap();
+        true
     }
 
     pub async fn signe_upload(&self, filename: &str) -> String {
@@ -30,7 +63,7 @@ impl BucketHandler {
     pub async fn signe_download(&self, filename: &str) -> String {
         let expiry_secs = 3600;
         self.storage
-            .presign_get(format!("image/{filename}"), expiry_secs, None)
+            .presign_get(format!("images/characters/{filename}"), expiry_secs, None)
             .unwrap()
     }
 
