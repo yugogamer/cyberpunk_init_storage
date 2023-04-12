@@ -5,6 +5,7 @@ use actix_web::{
     HttpResponse,
 };
 
+use crate::services::bucket::BucketHandler;
 use crate::services::database::Database;
 use crate::services::models::auth::LightUser;
 use crate::services::models::query::Schema;
@@ -12,6 +13,7 @@ use crate::services::models::query::Schema;
 pub struct GraphqlContext {
     pub db: Database,
     pub user_id: i32,
+    pub storage: BucketHandler,
 }
 
 impl juniper::Context for GraphqlContext {}
@@ -21,11 +23,13 @@ pub async fn graphql(
     user: LightUser,
     pool: web::Data<Database>,
     schema: web::Data<Schema>,
+    storage: web::Data<BucketHandler>,
     data: web::Json<juniper::http::GraphQLRequest>,
 ) -> impl Responder {
     let ctx = GraphqlContext {
         db: pool.get_ref().clone(),
         user_id: user.id,
+        storage: storage.get_ref().clone(),
     };
     let res = data.execute(&schema, &ctx).await;
 

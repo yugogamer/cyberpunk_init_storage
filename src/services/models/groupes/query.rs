@@ -1,0 +1,40 @@
+use juniper::FieldResult;
+use juniper_compose::composable_object;
+use sea_orm::{EntityTrait, ModelTrait};
+
+use crate::{
+    controller::graphql::GraphqlContext,
+    services::models::{access::can_access_groupe, groupes::Groupe},
+};
+
+#[derive(Default)]
+pub struct QueryGroupes;
+
+#[composable_object]
+#[juniper::graphql_object(Context = GraphqlContext)]
+impl QueryGroupes {
+    async fn get_groupe(groupe_id: i32, ctx: &GraphqlContext) -> FieldResult<Groupe> {
+        if !can_access_groupe(groupe_id, ctx.user_id, &ctx.db.database).await? {
+            return Err("You can't access this groupe".into());
+        }
+
+        let text = entities::groupes::Entity::find_by_id(groupe_id)
+            .one(&ctx.db.database)
+            .await?;
+        if let Some(res) = text {
+            return Ok(res.into());
+        }
+        Err("Groupe not found".into())
+    }
+
+    async fn get_groupes(ctx: &GraphqlContext) -> FieldResult<Vec<Groupe>> {
+        let res = entities::accounts::Entity::find_by_id(ctx.user_id)
+            .one(&ctx.db.database)
+            .await?
+            .unwrap()
+            .find_related(entities::groupes::Entity)
+            .all(&ctx.db.database)
+            .await?;
+        Ok(res.into_iter().map(|x| x.into()).collect())
+    }
+}

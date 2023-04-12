@@ -2,6 +2,7 @@ use actix_cors::Cors;
 use actix_web::web::{self, Data};
 use actix_web::{get, http, middleware, App, HttpResponse, HttpServer};
 
+use crate::services::bucket::BucketHandler;
 use crate::services::models::database::DatabaseTrait;
 use crate::services::models::query::create_schema;
 
@@ -30,6 +31,7 @@ async fn main() -> std::io::Result<()> {
             std::process::exit(1);
         }
     };
+    let storage = BucketHandler::new(&config).await;
 
     let server = HttpServer::new(move || {
         let config = utils::config::Config::new().unwrap();
@@ -40,7 +42,7 @@ async fn main() -> std::io::Result<()> {
             .allowed_origin("http://localhost:5173")
             .allowed_origin("http://127.0.0.1:5173")
             .allowed_origin("https://raina.ovh")
-            .allowed_origin("https://cyberpunk.raina.ovh")
+            .allowed_origin("https://www.cyberpunk.raina.ovh")
             .allowed_origin("https://cyberpunk-website.s3-website.fr-par.scw.cloud")
             .supports_credentials()
             .allowed_methods(vec!["GET", "POST"])
@@ -56,7 +58,9 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             .app_data(Data::new(pool.clone()))
             .app_data(Data::new(config))
+            .app_data(Data::new(storage.clone()))
             .app_data(Data::new(create_schema()))
+            .app_data(web::PayloadConfig::new(100000000))
             .wrap(middleware::Compress::default())
             .service(
                 web::scope("/api")
@@ -66,6 +70,7 @@ async fn main() -> std::io::Result<()> {
                             .service(controller::account::register)
                             .service(controller::account::logout),
                     )
+                    .service(web::scope("/character/asset").service(controller::assets::create))
                     .service(controller::graphql::graphql)
                     .service(controller::graphql::graphql_read)
                     .service(controller::bot::roll),

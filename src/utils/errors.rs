@@ -1,4 +1,5 @@
 use actix_web::{error::HttpError, HttpResponse, ResponseError};
+use sea_orm::DbErr;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -35,6 +36,8 @@ pub enum AppErrors {
     AlreadyExists(String),
     #[error("unauthorized")]
     Unauthorized,
+    #[error("orm errors")]
+    OrmError(#[from] DbErr),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -169,6 +172,12 @@ impl AppErrorsResponse {
             },
             AppErrors::Unauthorized => Self {
                 status_code: 401,
+                types,
+                message,
+                trace,
+            },
+            AppErrors::OrmError(_) => Self {
+                status_code: 500,
                 types,
                 message,
                 trace,

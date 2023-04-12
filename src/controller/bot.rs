@@ -3,37 +3,35 @@ use actix_web::{
     web::{self},
     HttpResponse,
 };
+use sea_orm::{ColumnTrait, EntityTrait, ModelTrait, QueryFilter, QuerySelect, RelationTrait};
 
 use crate::services::models::auth::LightUser;
-use crate::services::models::database::DatabaseTrait;
 use crate::services::models::roll::roll_initiative;
 use crate::{services::database::Database, utils::errors::AppErrors};
 
 #[get("/roll/{groupe_id}")]
 pub async fn roll(
     pool: web::Data<Database>,
-    user: LightUser,
+    _user: LightUser,
     path: web::Path<i32>,
 ) -> Result<HttpResponse, AppErrors> {
     let groupe_id = path.into_inner();
-    let groupe = pool
-        .group_service()
-        .get_groupe_secured(groupe_id, user.id)
+    let groupe = entities::groupes::Entity::find_by_id(groupe_id)
+        .one(&pool.database)
         .await?;
-    if groupe.id != groupe_id {
-        return Err(AppErrors::NotFound("Groupe not found".to_string()));
-    }
-    let characters = pool
-        .character_service()
-        .get_active_character_in_group(groupe_id)
-        .await?;
-    if characters.is_empty() {
-        return Err(AppErrors::NotFound(
-            "Groups doesn't have any active characters".to_string(),
-        ));
-    }
 
-    let rolls = roll_initiative(&characters);
+    let character = groupe
+        .unwrap()
+        .find_related(entities::characters::Entity)
+        .filter(entities::active_in_groups::Column::Active.eq(true))
+        .all(&pool.database)
+        .await?
+        .into_iter()
+        .map(|c| c.into())
+        .collect();
+
+    let rolls = roll_initiative(&character);
+
     let response = HttpResponse::Ok().json(rolls);
     Ok(response)
 }
