@@ -15,6 +15,7 @@ async fn index() -> HttpResponse {
     HttpResponse::Ok().body("status : Ok")
 }
 
+// make a rebuid to test deploiment
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
     let config = utils::config::Config::new();
