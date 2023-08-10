@@ -5,7 +5,7 @@ EXPOSE 8080
 RUN SQLX_OFFLINE=true cargo build --release
 #ENTRYPOINT [ "cargo", "run", "--release" ]
 
-FROM debian:stable-slim
+FROM debian:bullseye-slim 
 COPY --from=builder /usr/src/app/target/release/cyberpunk_init_storage /app/cyberpunk_init_storage
 COPY ./migrations /app/migrations
 EXPOSE 8080
