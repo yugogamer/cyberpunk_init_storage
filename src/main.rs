@@ -45,7 +45,7 @@ async fn main() -> std::io::Result<()> {
             .allowed_origin("https://cyberpunk.raina.ovh")
             .allowed_origin("https://cyberpunk-website.s3-website.fr-par.scw.cloud")
             .supports_credentials()
-            .allowed_methods(vec!["GET", "POST"])
+            .allowed_methods(vec!["GET", "POST", "PUT"])
             .allowed_headers(vec![
                 http::header::AUTHORIZATION,
                 http::header::ACCEPT,

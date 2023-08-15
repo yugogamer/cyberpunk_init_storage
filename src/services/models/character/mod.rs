@@ -1,6 +1,6 @@
 use crate::{controller::graphql::GraphqlContext, utils::errors::AppErrors};
 use async_trait::async_trait;
-use juniper::{futures::future::ok, graphql_object, FieldResult};
+use juniper::{graphql_object, FieldResult};
 use sea_orm::{ColumnTrait, EntityTrait, ModelTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
 

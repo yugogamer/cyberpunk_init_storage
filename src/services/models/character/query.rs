@@ -29,7 +29,7 @@ impl CharacterQuery {
             .await?
             .unwrap()
             .find_related(entities::characters::Entity)
-            .order_by_asc(entities::characters::Column::CreatedAt)
+            .order_by_asc(entities::characters::Column::Name)
             .all(&ctx.db.database)
             .await?;
         Ok(res.into_iter().map(|x| x.into()).collect())

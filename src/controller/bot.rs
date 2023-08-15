@@ -3,7 +3,7 @@ use actix_web::{
     web::{self},
     HttpResponse,
 };
-use sea_orm::{ColumnTrait, EntityTrait, ModelTrait, QueryFilter, QuerySelect, RelationTrait};
+use sea_orm::{ColumnTrait, EntityTrait, ModelTrait, QueryFilter};
 
 use crate::services::models::auth::LightUser;
 use crate::services::models::roll::roll_initiative;

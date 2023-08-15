@@ -50,7 +50,7 @@ async fn register(
     create: web::Json<InputUser>,
 ) -> Result<HttpResponse, AppErrors> {
     let input = create.into_inner();
-    let newUser = entities::accounts::ActiveModel {
+    let new_user = entities::accounts::ActiveModel {
         username: Set(input.username),
         email: Set(input.email),
         ..Default::default()
@@ -61,7 +61,7 @@ async fn register(
     let password = crate::utils::auth::hash_password(&input.password, &config.argon2_config)?;
 
     let _new_auth = entities::auth::ActiveModel {
-        user_id: Set(newUser.id),
+        user_id: Set(new_user.id),
         password: Set(password),
         ..Default::default()
     }

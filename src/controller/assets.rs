@@ -24,6 +24,10 @@ pub async fn create(
         .await?;
     if let Some(character) = character {
         if character.user_id != user.id {
+            println!(
+                "id user : {}, character user id : {}",
+                user.id, character.user_id
+            );
             return Err(AppErrors::Unauthorized);
         }
         if character.asset_id.is_some() {

@@ -93,9 +93,10 @@ impl GroupesMutation {
             let mut status = status.into_active_model();
             status.set(entities::active_in_groups::Column::Active, active.into());
             status.update(&ctx.db.database).await?;
+            return Ok(true);
         }
 
-        Ok(true)
+        Ok(false)
     }
 
     async fn delete_groupe(groupe_id: i32, ctx: &GraphqlContext) -> FieldResult<bool> {

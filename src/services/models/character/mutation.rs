@@ -1,6 +1,6 @@
 use juniper::FieldResult;
 use juniper_compose::composable_object;
-use sea_orm::{ActiveModelTrait, EntityTrait, IntoActiveModel, Set};
+use sea_orm::{ActiveModelTrait, EntityTrait, IntoActiveModel, ModelTrait, Set};
 
 use crate::{
     controller::graphql::GraphqlContext,
@@ -8,6 +8,7 @@ use crate::{
         access::can_edit_character,
         character::{Character, InputCharacter, UpdateCharacter},
     },
+    utils::errors::AppErrors,
 };
 
 #[derive(Default)]
@@ -37,7 +38,7 @@ impl CharacterMutation {
         input_character: UpdateCharacter,
         ctx: &GraphqlContext,
     ) -> FieldResult<Character> {
-        if can_edit_character(character_id, ctx.user_id, &ctx.db.database).await? {
+        if !can_edit_character(character_id, ctx.user_id, &ctx.db.database).await? {
             return Err("You can't edit this character".into());
         }
 
@@ -63,9 +64,33 @@ impl CharacterMutation {
     }
 
     async fn delete_character(character_id: i32, ctx: &GraphqlContext) -> FieldResult<bool> {
-        entities::characters::Entity::delete_by_id(character_id)
-            .exec(&ctx.db.database)
+        let character = entities::characters::Entity::find_by_id(character_id)
+            .one(&ctx.db.database)
             .await?;
-        Ok(true)
+        if !can_edit_character(character_id, ctx.user_id, &ctx.db.database).await? {
+            return Err("You can't edit this character".into());
+        }
+
+        if let Some(character) = character {
+            if character.user_id != ctx.user_id {
+                return Ok(false);
+            }
+
+            let asset = character
+                .find_related(entities::assets::Entity)
+                .one(&ctx.db.database)
+                .await?;
+            if let Some(asset) = asset {
+                ctx.storage.remove(&asset.bucket_name).await;
+                asset.delete(&ctx.db.database).await?;
+            }
+
+            entities::characters::Entity::delete_by_id(character_id)
+                .exec(&ctx.db.database)
+                .await?;
+
+            return Ok(true);
+        }
+        Ok(false)
     }
 }
