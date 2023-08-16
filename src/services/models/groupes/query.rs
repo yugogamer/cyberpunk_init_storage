@@ -29,24 +29,19 @@ impl QueryGroupes {
     }
 
     async fn get_groupes(ctx: &GraphqlContext) -> FieldResult<Vec<Groupe>> {
-        let mut res = entities::accounts::Entity::find_by_id(ctx.user_id)
-            .one(&ctx.db.database)
-            .await?
-            .unwrap()
-            .find_related(entities::groupes::Entity)
-            .all(&ctx.db.database)
-            .await?;
+        let mut res = Vec::new();
 
-        let total_groupes = entities::groupes_access::Entity::find()
-            .filter(entities::groupes_access::Column::IdUser.eq(ctx.user_id))
-            .find_with_related(Groupes)
-            .all(&ctx.db.database)
-            .await?
-            .into_iter()
-            .map(|x| x.1)
-            .collect::<Vec<_>>();
+        let mut totalGroupes: Vec<Vec<entities::groupes::Model>> =
+            entities::groupes_access::Entity::find()
+                .filter(entities::groupes_access::Column::IdUser.eq(ctx.user_id))
+                .find_with_related(Groupes)
+                .all(&ctx.db.database)
+                .await?
+                .into_iter()
+                .map(|x| x.1)
+                .collect::<Vec<_>>();
 
-        for mut ele in total_groupes {
+        for ele in totalGroupes {
             res.append(&mut ele);
         }
 

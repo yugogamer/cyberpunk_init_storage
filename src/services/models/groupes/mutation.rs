@@ -141,7 +141,6 @@ impl GroupesMutation {
             .await?;
         if let Some(invitation) = invitation {
             let invitation = invitation.into_active_model();
-            invitation.delete(&ctx.db.database).await?;
             entities::groupes_access::ActiveModel {
                 id_user: Set(ctx.user_id),
                 id_groupe: Set(groupe_id),
@@ -150,6 +149,8 @@ impl GroupesMutation {
             }
             .save(&ctx.db.database)
             .await?;
+
+            invitation.delete(&ctx.db.database).await?;
         }
         Ok(true)
     }
