@@ -1,6 +1,7 @@
+use entities::{groupes::Relation, prelude::Groupes};
 use juniper::FieldResult;
 use juniper_compose::composable_object;
-use sea_orm::{EntityTrait, ModelTrait};
+use sea_orm::{ColumnTrait, EntityTrait, ModelTrait, QueryFilter};
 
 use crate::{
     controller::graphql::GraphqlContext,
@@ -28,13 +29,27 @@ impl QueryGroupes {
     }
 
     async fn get_groupes(ctx: &GraphqlContext) -> FieldResult<Vec<Groupe>> {
-        let res = entities::accounts::Entity::find_by_id(ctx.user_id)
+        let mut res = entities::accounts::Entity::find_by_id(ctx.user_id)
             .one(&ctx.db.database)
             .await?
             .unwrap()
             .find_related(entities::groupes::Entity)
             .all(&ctx.db.database)
             .await?;
+
+        let total_groupes = entities::groupes_access::Entity::find()
+            .filter(entities::groupes_access::Column::IdUser.eq(ctx.user_id))
+            .find_with_related(Groupes)
+            .all(&ctx.db.database)
+            .await?
+            .into_iter()
+            .map(|x| x.1)
+            .collect::<Vec<_>>();
+
+        for mut ele in total_groupes {
+            res.append(&mut ele);
+        }
+
         Ok(res.into_iter().map(|x| x.into()).collect())
     }
 
