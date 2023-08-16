@@ -1,4 +1,3 @@
-use hmac::digest::typenum::Gr;
 use juniper::FieldResult;
 use juniper_compose::composable_object;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter, Set};
@@ -106,18 +105,31 @@ impl GroupesMutation {
         Ok(true)
     }
 
-    async fn invite_user(groupe_id: i32, user_id: i32, ctx: &GraphqlContext) -> FieldResult<bool> {
+    async fn invite_user(
+        groupe_id: i32,
+        user_name: String,
+        ctx: &GraphqlContext,
+    ) -> FieldResult<bool> {
         if !can_edit_groupe(groupe_id, ctx.user_id, &ctx.db.database).await? {
             return Err("You can't edit this groupe".into());
         }
-        entities::invitations::ActiveModel {
-            groupe_id: Set(Some(user_id)),
-            user_id: Set(Some(groupe_id)),
-            accepted: Set(false),
-            ..Default::default()
+
+        let other_user = entities::accounts::Entity::find()
+            .filter(entities::accounts::Column::Username.eq(user_name))
+            .one(&ctx.db.database)
+            .await?;
+        if let Some(other_user) = other_user {
+            entities::invitations::ActiveModel {
+                groupe_id: Set(Some(other_user.id)),
+                user_id: Set(Some(groupe_id)),
+                accepted: Set(false),
+                ..Default::default()
+            }
+            .insert(&ctx.db.database)
+            .await?;
+        } else {
+            return Err("user not found".into());
         }
-        .insert(&ctx.db.database)
-        .await?;
         Ok(true)
     }
 
@@ -142,9 +154,8 @@ impl GroupesMutation {
             .one(&ctx.db.database)
             .await?;
         if let Some(invitation) = invitation {
-            let mut invitation = invitation.into_active_model();
-            invitation.set(entities::invitations::Column::Accepted, false.into());
-            invitation.update(&ctx.db.database).await?;
+            let invitation: entities::invitations::ActiveModel = invitation.into_active_model();
+            invitation.delete(&ctx.db.database).await?;
         }
         Ok(true)
     }
