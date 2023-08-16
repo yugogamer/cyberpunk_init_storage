@@ -31,7 +31,7 @@ impl QueryGroupes {
     async fn get_groupes(ctx: &GraphqlContext) -> FieldResult<Vec<Groupe>> {
         let mut res = Vec::new();
 
-        let mut totalGroupes: Vec<Vec<entities::groupes::Model>> =
+        let totalGroupes: Vec<Vec<entities::groupes::Model>> =
             entities::groupes_access::Entity::find()
                 .filter(entities::groupes_access::Column::IdUser.eq(ctx.user_id))
                 .find_with_related(Groupes)
@@ -41,7 +41,7 @@ impl QueryGroupes {
                 .map(|x| x.1)
                 .collect::<Vec<_>>();
 
-        for ele in totalGroupes {
+        for mut ele in totalGroupes {
             res.append(&mut ele);
         }
 
