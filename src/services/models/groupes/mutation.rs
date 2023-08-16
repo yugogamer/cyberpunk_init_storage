@@ -140,9 +140,16 @@ impl GroupesMutation {
             .one(&ctx.db.database)
             .await?;
         if let Some(invitation) = invitation {
-            let mut invitation = invitation.into_active_model();
-            invitation.set(entities::invitations::Column::Accepted, true.into());
-            invitation.update(&ctx.db.database).await?;
+            let invitation = invitation.into_active_model();
+            invitation.delete(&ctx.db.database).await?;
+            entities::groupes_access::ActiveModel {
+                id_user: Set(ctx.user_id),
+                id_groupe: Set(groupe_id),
+                admin: Set(false),
+                ..Default::default()
+            }
+            .save(&ctx.db.database)
+            .await?;
         }
         Ok(true)
     }

@@ -30,6 +30,15 @@ pub async fn can_edit_groupe(
         if res.owner_id == user_id {
             return Ok(true);
         }
+
+        let res = entities::groupes_access::Entity::find()
+            .filter(entities::groupes_access::Column::IdGroupe.eq(groupe_id))
+            .filter(entities::groupes_access::Column::IdUser.eq(user_id))
+            .one(db)
+            .await?;
+        if let Some(_res) = res {
+            return Ok(true);
+        }
     }
     Ok(false)
 }
