@@ -120,8 +120,8 @@ impl GroupesMutation {
             .await?;
         if let Some(other_user) = other_user {
             entities::invitations::ActiveModel {
-                groupe_id: Set(Some(other_user.id)),
-                user_id: Set(Some(groupe_id)),
+                groupe_id: Set(Some(groupe_id)),
+                user_id: Set(Some(other_user.id)),
                 accepted: Set(false),
                 ..Default::default()
             }
