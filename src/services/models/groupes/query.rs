@@ -37,4 +37,27 @@ impl QueryGroupes {
             .await?;
         Ok(res.into_iter().map(|x| x.into()).collect())
     }
+
+    async fn get_invitation(ctx: &GraphqlContext) -> FieldResult<Vec<Groupe>> {
+        let invitations = entities::accounts::Entity::find_by_id(ctx.user_id)
+            .one(&ctx.db.database)
+            .await?
+            .unwrap()
+            .find_related(entities::invitations::Entity)
+            .all(&ctx.db.database)
+            .await?;
+
+        let mut groupes = Vec::with_capacity(invitations.len());
+
+        for inv in invitations {
+            let groupe = entities::groupes::Entity::find_by_id(inv.groupe_id.unwrap())
+                .one(&ctx.db.database)
+                .await?
+                .unwrap();
+
+            groupes.push(groupe);
+        }
+
+        Ok(groupes.into_iter().map(|x| x.into()).collect())
+    }
 }
