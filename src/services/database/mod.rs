@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use async_trait::async_trait;
 use sea_orm::{ConnectOptions, DatabaseConnection};
 use sqlx::{
@@ -40,7 +42,12 @@ impl DatabaseTrait<Self> for Database {
         let db = ConnectOptions::new(url);
         let database = sea_orm::Database::connect(db).await.unwrap();
 
-        let pool = PgPoolOptions::new().connect_with(connection).await?;
+        let pool = PgPoolOptions::new()
+            .min_connections(1)
+            .max_connections(15)
+            .idle_timeout(Duration::from_secs(90))
+            .connect_with(connection)
+            .await?;
         migrate(&pool).await?;
         Ok(Database {
             database,
