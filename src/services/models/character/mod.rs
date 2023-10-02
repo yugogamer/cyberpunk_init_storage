@@ -79,7 +79,10 @@ impl Character {
                 .await
                 .unwrap()
                 .unwrap();
-            let url = ctx.storage.signe_download(&asset.bucket_name).await;
+            let url = format!(
+                "https://api.cyberpunk.raina.ovh/api/character/asset/{}",
+                asset.bucket_name
+            );
             Some(url)
         } else {
             None
