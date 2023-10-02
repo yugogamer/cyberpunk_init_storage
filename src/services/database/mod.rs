@@ -39,7 +39,10 @@ impl DatabaseTrait<Self> for Database {
             .password(&config.db_password)
             .database(&config.db_name);
 
-        let db = ConnectOptions::new(url);
+        let db = ConnectOptions::new(url)
+            .max_connections(15)
+            .min_connections(1)
+            .idle_timeout(Duration::from_secs(90));
         let database = sea_orm::Database::connect(db).await.unwrap();
 
         let pool = PgPoolOptions::new()

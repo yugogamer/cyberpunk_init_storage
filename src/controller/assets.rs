@@ -1,10 +1,10 @@
-use actix_web::put;
+use actix_web::{get, put};
 use actix_web::{
     http::StatusCode,
     web::{self},
     HttpResponse,
 };
-use sea_orm::{ActiveModelTrait, EntityTrait, IntoActiveModel, Set};
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter, Set};
 
 use crate::services::database::Database;
 use crate::services::models::auth::LightUser;
@@ -56,5 +56,26 @@ pub async fn create(
         Ok(HttpResponse::new(StatusCode::CREATED))
     } else {
         Err(AppErrors::NotFound(format!("Character {} not found", id)))
+    }
+}
+
+#[get("/{filename}")]
+pub async fn get(
+    db: web::Data<Database>,
+    path: web::Path<String>,
+    storage: web::Data<crate::services::bucket::BucketHandler>,
+) -> Result<HttpResponse, AppErrors> {
+    let filename = path.into_inner();
+    let asset = entities::assets::Entity::find()
+        .filter(entities::assets::Column::BucketName.contains(&filename))
+        .one(&db.database)
+        .await?;
+    if let Some(asset) = asset {
+        let file = storage.download(&asset.bucket_name).await;
+        Ok(HttpResponse::Ok()
+            .insert_header(("Cache-Control", "max-age=604800"))
+            .body(file))
+    } else {
+        Err(AppErrors::NotFound(format!("Asset {} not found", filename)))
     }
 }

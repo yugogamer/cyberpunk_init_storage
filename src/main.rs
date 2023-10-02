@@ -70,7 +70,11 @@ async fn main() -> std::io::Result<()> {
                             .service(controller::account::register)
                             .service(controller::account::logout),
                     )
-                    .service(web::scope("/character/asset").service(controller::assets::create))
+                    .service(
+                        web::scope("/character/asset")
+                            .service(controller::assets::create)
+                            .service(controller::assets::get),
+                    )
                     .service(controller::graphql::graphql)
                     .service(controller::graphql::graphql_read)
                     .service(controller::bot::roll),
