@@ -17,6 +17,7 @@ async fn index() -> HttpResponse {
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
+    let start = std::time::Instant::now();
     let config = utils::config::Config::new();
     if let Err(e) = config {
         println!("error while loading config: {}", e);
@@ -85,5 +86,7 @@ async fn main() -> std::io::Result<()> {
     .run();
 
     println!("Listening on http://{}:{}", config.host, config.port);
+    let duration = start.elapsed();
+    println!("Server started in: {:?}", duration);
     server.await
 }
